@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>WebSocket-简易聊天</title>
+    <style>
+        #content {
+            height: 370px;
+            border: 2px solid purple
+        }
+    </style>
+</head>
+<body>
+    <div id="content"></div>
+    <input type="text" id="input">
+    <button onclick="openWebSocket()">打开连接</button>
+    <button onclick="sendMsg()">发送消息</button>
+    <button onclick="closeWebSocket()">关闭连接</button>
+    <script>
+        var openFlag=false
+        var WebSocket;  //全局定义
+        var content = document.getElementById("content")
+        var input = document.getElementById("input")
+
+        //发送消息
+        function sendMsg(){
+
+            if(input.value && openFlag){
+                    WebSocket.send(input.value)
+                    content.innerHTML+=`
+                        <div>
+                            <span>客户端：</span>${input.value}
+                        </div>
+                    `
+                    input.value=''
+            }
+        }
+
+        //关闭连接
+        function closeWebSocket(){
+            WebSocket.close()
+        }
+
+        function openWebSocket(){   //打开与WebSocket服务器连接（此时未连接成功）
+
+            WebSocket = new WebSocket('wss://echo.websocket.org')
+
+            WebSocket.onopen=function(e){   //WebSocket连接成功调用onopen方法
+                console.log('WebSocket服务器连接成功');
+                openFlag=true
+            }
+
+            WebSocket.onmessage=function(e){
+                console.log('接收服务器消息：'+e.data);
+                content.innerHTML+=`
+                        <div>
+                            <span>服务端：</span>${e.data}
+                        </div>
+                    `
+            }
+
+            WebSocket.onclose=function(e){
+                console.log('服务器连接关闭');
+                openFlag=false
+            }
+        }
+      
+    </script>
+</body>
+</html>
